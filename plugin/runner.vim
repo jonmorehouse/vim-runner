@@ -1,9 +1,9 @@
 " Bootstrap the plugin
-fu! Runner#Bootstrap()
+fu! runner#Bootstrap()
     " make sure to bootstrap the basePath as needed
-    call Utilities#BasePath()
+    call utilities#BasePath()
     " now load up local vimrc files
-    call Utilities#LoadLocalVimrc()
+    call utilities#LoadLocalVimrc()
     " open up explore if no args are passed on startup
     if len(argv()) == 0 
         Explore
@@ -15,8 +15,8 @@ fu! Runner#Bootstrap()
 endfunction
 
 " bootstrap a new buffer / autocommand etc
-fu! Runner#BootstrapFile()
-    let type=Utilities#Capitalize(Utilities#GetFileType(@%))
+fu! runner#BootstrapFile()
+    let type=utilities#Capitalize(utilities#GetFileType(@%))
     if !exists("g:fileLock") || g:fileLock != "true"
         " bootstrap test mappings
         call TestMapper(type)
@@ -25,20 +25,20 @@ fu! Runner#BootstrapFile()
         call DebugMapper(type)
         " now that we have mapped the commands, call the local vimrc to ensure
         " that no re-mapping occurs
-        call Utilities#LoadLocalVimrc()
+        call utilities#LoadLocalVimrc()
     endif
 endfunction
 
-fu! Runner#BootstrapCurrentFile()
+fu! runner#BootstrapCurrentFile()
     " remove lock
     let g:fileLock="false"
     " bootstrap the current file
-    :call Runner#BootstrapFile()
+    :call runner#BootstrapFile()
     " lock again
     let g:fileLock="true"
 endfunction
 
-fu! Runner#ToggleFileLock()
+fu! runner#ToggleFileLock()
 
     if !exists("g:fileLock")
         let g:fileLock="true"
@@ -67,23 +67,23 @@ endif
 """
 " link up autocommands as needed
 " :help autocmd-events
-au BufNewFile,BufRead,BufEnter,BufWinEnter * call Runner#BootstrapFile()
+au BufNewFile,BufRead,BufEnter,BufWinEnter * call runner#BootstrapFile()
 " now lets actually call the global vimrc file at all times
-autocmd VimEnter * call Runner#Bootstrap()
+autocmd VimEnter * call runner#Bootstrap()
 
 """
 """ LEADER MAPPINGS
 """
-map<Leader>ll :call Runner#BootstrapCurrentFile()<CR>
-map<Leader>lu :call Runner#ToggleFileLock()<CR>
+map<Leader>ll :call runner#BootstrapCurrentFile()<CR>
+map<Leader>lu :call runner#ToggleFileLock()<CR>
 
 """
 """ PRIVATE METHODS
 """
 " now configure the leader mappings as needed
 fu! TestMapper(type)
-    :call Utilities#BasePath()
-    let functionName="File_Runners#". a:type ."TestRunner"
+    :call utilities#BasePath()
+    let functionName="file_runners#". a:type ."TestRunner"
     let path=expand('%:p') 
 
     if exists("*".functionName)
@@ -98,8 +98,8 @@ endfunction
 
 " initialize run commands
 fu! RunMapper(type)
-    :call Utilities#BasePath()
-    let functionName="File_Runners#". a:type ."Runner"
+    :call utilities#BasePath()
+    let functionName="file_runners#". a:type ."Runner"
     let path=expand('%:p') 
     if exists("*". functionName)
         " bootstrap the file command
@@ -112,8 +112,8 @@ fu! RunMapper(type)
 endfunction
 
 fu! DebugMapper(type)
-    :call Utilities#BasePath()
-    let functionName="File_Runners#". a:type ."DebugRunner"
+    :call utilities#BasePath()
+    let functionName="file_runners#". a:type ."DebugRunner"
     let path=expand('%:p') 
 
     if exists("*".functionName)
